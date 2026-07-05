@@ -128,71 +128,711 @@ html{scroll-behavior:smooth}
 <main>
 <section id="search" class="hero"><div class="hero-content"><div class="badge">🚀 ETNERS FLEET INTELLIGENCE · Excel Upload</div><h2>ETNERS Fleet Intelligence Platform</h2><p>AI 기반 법인차량 통합 조회, 운영 현황, 특이사항을 한 화면에서 관리하는 스마트 차량관리 플랫폼입니다.</p><div class="searchbar"><input id="q" placeholder="예) 김형준 / 186머4116 / G80 / 법무팀 / 관제 없는 차량" onkeydown="if(event.key==='Enter') search()"><button class="primary" onclick="search()">🔍 통합검색</button><button class="secondary" onclick="startVoice()">🎤</button></div><div class="quick"><button onclick="quickSearch('대표이사 차량')">대표이사 차량</button><button onclick="quickSearch('G80')">G80</button><button onclick="quickSearch('법무팀')">법무팀</button><button onclick="quickSearch('관제 없는 차량')">관제 없는 차량</button><button onclick="quickSearch('특이사항')">특이사항</button><button onclick="showAll()">전체보기</button></div><div class="mini"><div><strong id="miniTotal">43대</strong><span>통합 관리 차량</span></div><div><strong>AI Search</strong><span>자연어 조건 검색</span></div><div><strong>Excel</strong><span>업로드 즉시 반영</span></div></div></div></section>
 <section id="dashboard" class="grid"></section>
-<section class="panel"><div class="panel-head"><h3>🔍 검색 결과</h3><div class="tools"><button class="toolbtn" onclick="showAll()">전체보기</button><button class="toolbtn" onclick="downloadCSV()">CSV 다운로드</button><button class="toolbtn" onclick="document.getElementById('excelInput').click()">📂 엑셀 업로드</button><input class="upload" id="excelInput" type="file" accept=".xlsx,.xls" onchange="uploadExcel(event)"><button class="toolbtn" onclick="downloadTemplate()">양식 다운로드</button><button class="toolbtn" onclick="resetData()">기본데이터 복구</button></div></div><div id="result" class="cards"><p style="color:var(--muted)">검색 결과가 여기에 표시됩니다.</p></div></section>
-<section id="list" class="panel"><div class="panel-head"><h3>📋 전체현황</h3><div class="tools"><input id="tableFilter" class="filter" placeholder="전체현황 내 검색" oninput="renderTable()"><button class="toolbtn" onclick="downloadCSV()">CSV 다운로드</button></div></div><div class="table-wrap"><table><thead><tr><th onclick="sortBy('no')">No.</th><th onclick="sortBy('name')">성명</th><th onclick="sortBy('department')">부서명</th><th onclick="sortBy('position')">직급/직책</th><th onclick="sortBy('car')">차종</th><th onclick="sortBy('number')">차량번호</th><th onclick="sortBy('lease')">리스</th><th onclick="sortBy('gps')">관제</th><th>특이건</th><th>비고</th></tr></thead><tbody id="tbody"></tbody></table></div></section>
+<section id="resultPanel" class="panel"><div class="panel-head"><h3>🔍 검색 결과</h3><div class="tools"><button class="toolbtn" onclick="showAll()">전체보기</button><button class="toolbtn" onclick="downloadCSV()">CSV 다운로드</button><button class="toolbtn" onclick="document.getElementById('excelInput').click()">📂 엑셀 업로드</button><input class="upload" id="excelInput" type="file" accept=".xlsx,.xls" onchange="uploadExcel(event)"><button class="toolbtn" onclick="downloadTemplate()">양식 다운로드</button><button class="toolbtn" onclick="resetData()">기본데이터 복구</button></div></div><div id="result" class="cards"><p style="color:var(--muted)">검색 결과가 여기에 표시됩니다.</p></div></section>
+<section id="list" class="panel"><div class="panel-head"><h3>📋 전체현황</h3><div class="tools"><input id="tableFilter" class="filter" placeholder="전체현황 내 검색" oninput="renderTable()"><button class="toolbtn" onclick="downloadCSV()">CSV 다운로드</button></div></div><div class="table-wrap"><table><thead><tr><th onclick="sortBy('no')">No.</th><th onclick="sortBy('name')">성명</th><th onclick="sortBy('department')">부서명</th><th onclick="sortBy('position')">직급/직책</th><th onclick="sortBy('car')">차종</th><th onclick="sortBy('number')">차량번호</th><th onclick="sortBy('lease')">리스</th><th onclick="sortBy('gps')">관제</th><th onclick="sortBy('expiry')">유효기간</th><th>특이건</th><th>비고</th></tr></thead><tbody id="tbody"></tbody></table></div></section>
 <section id="stats" class="panel"><div class="panel-head"><h3>📊 통계 Dashboard</h3></div><div class="chartrow"><div><h4>차종별 현황</h4><div id="chart"></div></div><div><h4>AI 요약</h4><div id="summary" style="line-height:1.9;color:var(--muted)"></div></div></div></section>
 </main>
 <button class="ai-float" onclick="toggleChat()">💬</button><div id="chat" class="chat"><div class="chat-head">🤖 AI Assistant</div><div id="chatBody" class="chat-body"><div class="msg bot">안녕하세요. 차량명, 부서, 직급, “관제 없는 차량”처럼 입력해보세요.</div></div><div class="chat-input"><input id="chatText" placeholder="무엇을 찾으시나요?" onkeydown="if(event.key==='Enter') askAI()"><button onclick="askAI()">전송</button></div></div>
 <div id="modal" class="modal"><div class="modal-box"><div class="modal-head"><h3>차량 상세정보</h3><button class="close" onclick="closeModal()">닫기</button></div><div id="modalBody"></div></div></div>
 <script>
 const defaultVehicles = [
-{no:1,card:'9410854270920800',department:'대표이사',name:'김경아',position:'사장/대표이사',car:'G90',number:'129저6263',lease:'○',gps:'',issue:'',memo:''},
-{no:2,card:'9410854831224100',department:'개발1본부',name:'홍성원',position:'부사장/본부장',car:'G90',number:'128고4088',lease:'○',gps:'○',issue:'',memo:''},
-{no:3,card:'9410854734157700',department:'개발1본부',name:'임영혁',position:'고문',car:'G80',number:'239머9822',lease:'○',gps:'○',issue:'',memo:''},
-{no:4,card:'9410854290718200',department:'Enable팀',name:'김윤철',position:'상무/팀장',car:'K8',number:'393거8816',lease:'○',gps:'○',issue:'4/9 신규차량 입고 (그랜져 → k8)',memo:''},
-{no:5,card:'9410854290202500',department:'기술개발그룹',name:'황재웅',position:'상무/그룹장',car:'그랜저 GN7',number:'383거8807',lease:'○',gps:'○',issue:'4/1 신규차량 입고 및 반납 / 관제기기 설치(4/1)',memo:''},
-{no:6,card:'9410854886984500',department:'TM팀',name:'신동훈',position:'부사장',car:'G80',number:'265모5585',lease:'○',gps:'○',issue:'',memo:'1/2 신규차량 입고'},
-{no:7,card:'9410854341910700',department:'품질안전팀',name:'박형기',position:'상무/팀장',car:'그랜저 GN7',number:'284우6937',lease:'○',gps:'○',issue:'',memo:''},
-{no:8,card:'9410854888926900',department:'MSAT팀',name:'신지은',position:'부사장',car:'G80',number:'253부2017',lease:'○',gps:'○',issue:'',memo:'1/2 신규차량 입고'},
-{no:9,card:'9410854277509900',department:'QE팀',name:'백상현',position:'부사장/팀장',car:'G80',number:'399무1376',lease:'○',gps:'○',issue:'',memo:''},
-{no:10,card:'9410854895415600',department:'DP팀',name:'장성근',position:'상무/팀장',car:'그랜저 GN7',number:'239머5843',lease:'○',gps:'○',issue:'',memo:''},
-{no:11,card:'9410854874162200',department:'PE팀',name:'홍일선',position:'상무/팀장',car:'K8',number:'399고4720',lease:'○',gps:'○',issue:'',memo:''},
-{no:12,card:'9410854859103700',department:'Biometrics그룹',name:'백인영',position:'상무/그룹장',car:'K8',number:'113수5040',lease:'○',gps:'○',issue:'',memo:''},
-{no:13,card:'9410854290201200',department:'RA팀',name:'정병인',position:'상무/팀장',car:'그랜저 GN7',number:'260수5083',lease:'○',gps:'○',issue:'4/1 신규차량 입고 및 반납 / 관제기기 설치(4/1)',memo:''},
-{no:14,card:'9410854409959800',department:'생산운영팀',name:'이상민',position:'상무/팀장',car:'그랜저 GN7',number:'305머8812',lease:'○',gps:'○',issue:'',memo:''},
-{no:15,card:'9410854921922100',department:'인사팀',name:'강대성',position:'상무/팀장',car:'그랜저 GN7',number:'257더6796',lease:'○',gps:'○',issue:'',memo:''},
-{no:16,card:'9410854524468600',department:'Commercial본부',name:'린다최',position:'부사장/본부장',car:'G80',number:'208마1016',lease:'○',gps:'○',issue:'',memo:''},
-{no:17,card:'9410854580353000',department:'경영지원실',name:'김형준',position:'부사장/실장',car:'G90',number:'186머4116',lease:'○',gps:'○',issue:'',memo:''},
-{no:18,card:'9410854853578400',department:'재경팀',name:'이기현',position:'상무/팀장',car:'K8',number:'113수5002',lease:'○',gps:'○',issue:'',memo:''},
-{no:19,card:'9410854772543700',department:'PM팀',name:'정진한',position:'상무/팀장',car:'그랜저 GN7',number:'399무1323',lease:'○',gps:'○',issue:'',memo:''},
-{no:20,card:'9410854297605600',department:'사업기획실',name:'고유상',position:'부사장/실장',car:'G80',number:'399무1322',lease:'○',gps:'○',issue:'',memo:''},
-{no:21,card:'9410854290719500',department:'법무팀',name:'문형우',position:'상무/팀장',car:'그랜저 GN7',number:'157러7751',lease:'○',gps:'○',issue:'',memo:''},
-{no:22,card:'9410854289800600',department:'ESG사무국',name:'양철보',position:'부사장/팀장',car:'G80',number:'399무1327',lease:'○',gps:'○',issue:'',memo:''},
-{no:23,card:'9410854277430900',department:'PD팀',name:'봉기태',position:'상무/팀장',car:'그랜저 GN7',number:'276무8602',lease:'○',gps:'○',issue:'',memo:''},
-{no:24,card:'9410854288198500',department:'Medical팀',name:'길지훈',position:'상무/팀장',car:'그랜저 GN7',number:'219라3058',lease:'○',gps:'○',issue:'',memo:''},
-{no:25,card:'9410854717176600',department:'넥스랩',name:'박재현',position:'상무',car:'그랜저 GN7',number:'175하8955',lease:'',gps:'',issue:'5/31 렌터카 입고 (제일렌트카)',memo:''},
-{no:26,card:'9410854918378400',department:'경영지원실',name:'육근성',position:'부사장',car:'G80',number:'133무2300',lease:'자산',gps:'',issue:'',memo:''},
-{no:27,card:'9410854290203800',department:'탐색팀',name:'서민정',position:'상무',car:'그랜저 GN7',number:'172주2647',lease:'○',gps:'○',issue:'',memo:''},
-{no:28,card:'9410854290720200',department:'AI팀',name:'강동완',position:'상무',car:'그랜저 GN7',number:'172주2646',lease:'○',gps:'○',issue:'',memo:''},
-{no:29,card:'9410854634889200',department:'Clinical Planning팀',name:'임경수',position:'상무',car:'그랜저 GN7',number:'172주2648',lease:'○',gps:'○',issue:'',memo:''},
-{no:30,card:'9410854656310800',department:'법무팀',name:'채주엽',position:'부사장',car:'K9',number:'253부2075',lease:'○',gps:'○',issue:'',memo:''},
-{no:31,card:'9410854295433000',department:'SBUS(Commercial)',name:'유광룡',position:'상무',car:'그랜저 GN7',number:'265모5590',lease:'○',gps:'○',issue:'',memo:''},
-{no:32,card:'9410854529038400',department:'생산운영팀',name:'이남훈',position:'상무',car:'그랜저 GN7',number:'265모5508',lease:'○',gps:'○',issue:'',memo:''},
-{no:33,card:'9410854482043500',department:'TM팀',name:'안소신',position:'상무',car:'그랜저 GN7',number:'131서2521',lease:'○',gps:'○',issue:'',memo:''},
-{no:34,card:'9410854342847100',department:'RA3그룹',name:'정의한',position:'상무',car:'그랜저 GN7',number:'131서2518',lease:'○',gps:'○',issue:'',memo:''},
-{no:35,card:'9410854582732100',department:'Enable팀',name:'이경원',position:'상무',car:'K8',number:'383거8802',lease:'○',gps:'○',issue:'',memo:''},
-{no:36,card:'9410854842677300',department:'법무그룹',name:'손성훈',position:'상무',car:'그랜저 GN7',number:'282마6517',lease:'○',gps:'○',issue:'',memo:''},
-{no:37,card:'9410854916024500',department:'내부회계그룹',name:'조창호',position:'수석변호사/그룹장',car:'그랜저 GN7',number:'399고4762',lease:'○',gps:'○',issue:'',memo:''},
-{no:38,card:'9410854647240400',department:'Compliance그룹',name:'오인선',position:'수석변호사/그룹장',car:'그랜저 GN7',number:'239머9846',lease:'○',gps:'○',issue:'',memo:''},
-{no:39,card:'9410854286365200',department:'법무그룹',name:'서소연',position:'수석변호사',car:'그랜저 GN7',number:'382거3962',lease:'○',gps:'○',issue:'',memo:''},
-{no:40,card:'9410854561253700',department:'법무그룹',name:'윤경원',position:'수석변호사',car:'K8',number:'182무9758',lease:'○',gps:'○',issue:'5/14 신규차량 입고 및 관제기기 설치',memo:''},
-{no:41,card:'9410854270923700',department:'WS그룹',name:'쏠라티',position:'셔틀차량',car:'쏠라티',number:'731어7662',lease:'○',gps:'○',issue:'',memo:''},
-{no:42,card:'9410854270922400',department:'WS그룹',name:'쏠라티',position:'셔틀차량',car:'쏠라티',number:'731어7663',lease:'○',gps:'○',issue:'',memo:''},
-{no:43,card:'9410854289798100',department:'WS그룹',name:'카니발',position:'업무차량',car:'카니발',number:'358러3551',lease:'○',gps:'○',issue:'',memo:''}
+  {
+    "no": 1,
+    "card": "9410854270920800",
+    "expiry": "",
+    "control": "",
+    "department": "대표이사",
+    "name": "김경아",
+    "position": "사장/대표이사",
+    "car": "G90",
+    "number": "129저6263",
+    "lease": "○",
+    "gps": "",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 2,
+    "card": "9410854831224100",
+    "expiry": "",
+    "control": "",
+    "department": "개발1본부",
+    "name": "홍성원",
+    "position": "부사장/본부장",
+    "car": "G90",
+    "number": "128고4088",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 3,
+    "card": "9410854734157700",
+    "expiry": "",
+    "control": "",
+    "department": "개발1본부",
+    "name": "임영혁",
+    "position": "고문",
+    "car": "G80",
+    "number": "239머9822",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 4,
+    "card": "9410854290718200",
+    "expiry": "",
+    "control": "",
+    "department": "Enable팀",
+    "name": "김윤철",
+    "position": "상무/팀장",
+    "car": "K8",
+    "number": "393거8816",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 5,
+    "card": "9410854290202500",
+    "expiry": "",
+    "control": "",
+    "department": "기술개발그룹",
+    "name": "황재웅",
+    "position": "상무/그룹장",
+    "car": "그랜저 GN7",
+    "number": "383거8807",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 6,
+    "card": "9410854886984500",
+    "expiry": "",
+    "control": "",
+    "department": "TM팀",
+    "name": "신동훈",
+    "position": "부사장",
+    "car": "G80",
+    "number": "265모5585",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 7,
+    "card": "9410854341910700",
+    "expiry": "",
+    "control": "",
+    "department": "품질안전팀",
+    "name": "박형기",
+    "position": "상무/팀장",
+    "car": "그랜저 GN7",
+    "number": "284우6937",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 8,
+    "card": "9410854888926900",
+    "expiry": "",
+    "control": "",
+    "department": "MSAT팀",
+    "name": "신지은",
+    "position": "부사장",
+    "car": "G80",
+    "number": "253부2017",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 9,
+    "card": "9410854277509900",
+    "expiry": "",
+    "control": "",
+    "department": "QE팀",
+    "name": "백상현",
+    "position": "부사장/팀장",
+    "car": "G80",
+    "number": "399무1376",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 10,
+    "card": "9410854895415600",
+    "expiry": "",
+    "control": "",
+    "department": "DP팀",
+    "name": "장성근",
+    "position": "상무/팀장",
+    "car": "그랜저 GN7",
+    "number": "239머5843",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 11,
+    "card": "9410854874162200",
+    "expiry": "",
+    "control": "",
+    "department": "PE팀",
+    "name": "홍일선",
+    "position": "상무/팀장",
+    "car": "그랜저 GN7",
+    "number": "383거8850",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 12,
+    "card": "9410854859103700",
+    "expiry": "",
+    "control": "",
+    "department": "Biometrics그룹",
+    "name": "백인영",
+    "position": "상무/그룹장",
+    "car": "K8",
+    "number": "113수5040",
+    "lease": "○",
+    "gps": "○",
+    "issue": "7/3 신규차량 입고, 반납(7/7) / 관제기기 이전설치(7/3)",
+    "memo": ""
+  },
+  {
+    "no": 13,
+    "card": "9410854290201200",
+    "expiry": "",
+    "control": "",
+    "department": "RA팀",
+    "name": "정병인",
+    "position": "상무/팀장",
+    "car": "그랜저 GN7",
+    "number": "260수5083",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 14,
+    "card": "9410854409959800",
+    "expiry": "",
+    "control": "",
+    "department": "생산운영팀",
+    "name": "이상민",
+    "position": "상무/팀장",
+    "car": "그랜저 GN7",
+    "number": "305머8812",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 15,
+    "card": "9410854921922100",
+    "expiry": "",
+    "control": "",
+    "department": "인사팀",
+    "name": "강대성",
+    "position": "상무/팀장",
+    "car": "그랜저 GN7",
+    "number": "257더6796",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 16,
+    "card": "9410854524468600",
+    "expiry": "",
+    "control": "",
+    "department": "Commercial본부",
+    "name": "린다최",
+    "position": "부사장/본부장",
+    "car": "G80",
+    "number": "208마1016",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 17,
+    "card": "9410854580353000",
+    "expiry": "",
+    "control": "",
+    "department": "경영지원실",
+    "name": "김형준",
+    "position": "부사장/실장",
+    "car": "G90",
+    "number": "186머4116",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 18,
+    "card": "9410854853578400",
+    "expiry": "",
+    "control": "",
+    "department": "재경팀",
+    "name": "이기현",
+    "position": "상무/팀장",
+    "car": "K8",
+    "number": "113수5002",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 19,
+    "card": "9410854772543700",
+    "expiry": "",
+    "control": "",
+    "department": "PM팀",
+    "name": "정진한",
+    "position": "상무/팀장",
+    "car": "그랜저 GN7",
+    "number": "399무1323",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 20,
+    "card": "9410854297605600",
+    "expiry": "",
+    "control": "24.11.11 교체",
+    "department": "사업기획실",
+    "name": "고유상",
+    "position": "부사장/실장",
+    "car": "G80",
+    "number": "399무1322",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 21,
+    "card": "9410854290719500",
+    "expiry": "",
+    "control": "",
+    "department": "법무팀",
+    "name": "문형우",
+    "position": "상무/팀장",
+    "car": "그랜저 GN7",
+    "number": "157러7751",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 22,
+    "card": "9410854289800600",
+    "expiry": "",
+    "control": "",
+    "department": "ESG사무국",
+    "name": "양철보",
+    "position": "부사장/팀장",
+    "car": "G80",
+    "number": "399무1327",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 23,
+    "card": "9410854277430900",
+    "expiry": "",
+    "control": "",
+    "department": "PD팀",
+    "name": "봉기태",
+    "position": "상무/팀장",
+    "car": "그랜저 GN7",
+    "number": "276무8602",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 24,
+    "card": "9410854288198500",
+    "expiry": "",
+    "control": "",
+    "department": "Medical팀",
+    "name": "길지훈",
+    "position": "상무/팀장",
+    "car": "그랜저 GN7",
+    "number": "219라3058",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 25,
+    "card": "9410854717176600",
+    "expiry": "",
+    "control": "",
+    "department": "넥스랩",
+    "name": "박재현",
+    "position": "상무",
+    "car": "그랜저 GN7",
+    "number": "383거8857",
+    "lease": "○",
+    "gps": "○",
+    "issue": "7/3 신규차량 입고, 렌터카 반납(7/6) / 관제기기 설치(7/3)",
+    "memo": ""
+  },
+  {
+    "no": 26,
+    "card": "9410854918378400",
+    "expiry": "",
+    "control": "",
+    "department": "경영지원실",
+    "name": "육근성",
+    "position": "부사장",
+    "car": "G80",
+    "number": "133무2300",
+    "lease": "자산",
+    "gps": "",
+    "issue": "6//29 키로수",
+    "memo": ""
+  },
+  {
+    "no": 27,
+    "card": "9410854290203800",
+    "expiry": "28년3월",
+    "control": "",
+    "department": "탐색팀",
+    "name": "서민정",
+    "position": "상무",
+    "car": "그랜저 GN7",
+    "number": "172주2647",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 28,
+    "card": "9410854290720200",
+    "expiry": "28년3월",
+    "control": "",
+    "department": "AI팀",
+    "name": "강동완",
+    "position": "상무",
+    "car": "그랜저 GN7",
+    "number": "172주2646",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 29,
+    "card": "9410854634889200",
+    "expiry": "31년3월",
+    "control": "",
+    "department": "Clinical Planning팀",
+    "name": "임경수",
+    "position": "상무",
+    "car": "그랜저 GN7",
+    "number": "172주2648",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 30,
+    "card": "9410854656310800",
+    "expiry": "",
+    "control": "",
+    "department": "법무팀",
+    "name": "채주엽",
+    "position": "부사장",
+    "car": "k9",
+    "number": "253부2075",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 31,
+    "card": "9410854295433000",
+    "expiry": "",
+    "control": "",
+    "department": "SBUS(Commercial)",
+    "name": "유광룡",
+    "position": "상무",
+    "car": "그랜저 GN7",
+    "number": "265모5590",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 32,
+    "card": "9410854529038400",
+    "expiry": "",
+    "control": "",
+    "department": "생산운영팀",
+    "name": "이남훈",
+    "position": "상무",
+    "car": "그랜저 GN7",
+    "number": "265모5508",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 33,
+    "card": "9410854482043500",
+    "expiry": "",
+    "control": "",
+    "department": "TM팀",
+    "name": "안소신",
+    "position": "상무",
+    "car": "그랜저 GN7",
+    "number": "131서2521",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 34,
+    "card": "9410854342847100",
+    "expiry": "",
+    "control": "",
+    "department": "RA3그룹",
+    "name": "정의한",
+    "position": "상무",
+    "car": "그랜저 GN7",
+    "number": "131서2518",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 35,
+    "card": "9410854582732100",
+    "expiry": "",
+    "control": "",
+    "department": "Enable팀",
+    "name": "이경원",
+    "position": "상무",
+    "car": "K8",
+    "number": "383거8802",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 36,
+    "card": "9410854842677300",
+    "expiry": "",
+    "control": "25.02.18 교체",
+    "department": "법무그룹",
+    "name": "손성훈",
+    "position": "상무",
+    "car": "그랜저 GN7",
+    "number": "282마6517",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 37,
+    "card": "9410854916024500",
+    "expiry": "",
+    "control": "",
+    "department": "내부회계그룹",
+    "name": "조창호",
+    "position": "수석변호사/그룹장",
+    "car": "그랜저 GN7",
+    "number": "220구7222",
+    "lease": "○",
+    "gps": "○",
+    "issue": "7/3 신규차량 입고, 반납(7/7) / 관제기기 이전설치(7/6)",
+    "memo": ""
+  },
+  {
+    "no": 38,
+    "card": "9410854647240400",
+    "expiry": "",
+    "control": "",
+    "department": "Compliance그룹",
+    "name": "오인선",
+    "position": "수석변호사/그룹장",
+    "car": "그랜저 GN7",
+    "number": "239머9846",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 39,
+    "card": "9410854286365200",
+    "expiry": "",
+    "control": "",
+    "department": "법무그룹",
+    "name": "서소연",
+    "position": "수석변호사",
+    "car": "그랜저 GN7",
+    "number": "382거3962",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 40,
+    "card": "9410854561253700",
+    "expiry": "",
+    "control": "",
+    "department": "법무그룹",
+    "name": "윤경원",
+    "position": "수석변호사",
+    "car": "K8",
+    "number": "182무9758",
+    "lease": "○",
+    "gps": "○",
+    "issue": "5/14 신규차량 입고 및 관제기기 설치",
+    "memo": ""
+  },
+  {
+    "no": 41,
+    "card": "9410854270923700",
+    "expiry": "",
+    "control": "",
+    "department": "WS그룹",
+    "name": "쏠라티",
+    "position": "셔틀차량",
+    "car": "쏠라티",
+    "number": "731어7662",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 42,
+    "card": "9410854270922400",
+    "expiry": "",
+    "control": "",
+    "department": "WS그룹",
+    "name": "쏠라티",
+    "position": "셔틀차량",
+    "car": "쏠라티",
+    "number": "731어7663",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  },
+  {
+    "no": 43,
+    "card": "9410854289798100",
+    "expiry": "",
+    "control": "",
+    "department": "WS그룹",
+    "name": "카니발",
+    "position": "업무차량",
+    "car": "카니발",
+    "number": "358러3551",
+    "lease": "○",
+    "gps": "○",
+    "issue": "",
+    "memo": ""
+  }
 ];
-let vehicles = JSON.parse(localStorage.getItem('etnersVehicles')||'null') || structuredClone(defaultVehicles);
+let vehicles = structuredClone(defaultVehicles);
 let sortKey='no', sortAsc=true;
+let uploadedSession=false;
+
+// GitHub Pages에서 data/vehicles.xlsx를 자동으로 읽어옵니다.
+// 엑셀 파일을 교체하고 Commit/Push하면 사이트 데이터가 자동 갱신됩니다.
+async function loadExcelDatabase(){
+  try{
+    if(typeof XLSX==='undefined') throw new Error('XLSX 라이브러리 없음');
+    const res = await fetch('data/vehicles.xlsx?ver=' + Date.now(), {cache:'no-store'});
+    if(!res.ok) throw new Error('엑셀 파일을 찾을 수 없음');
+    const buf = await res.arrayBuffer();
+    const wb = XLSX.read(buf,{type:'array'});
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const json = XLSX.utils.sheet_to_json(ws,{defval:''});
+    const mapped = mapExcelRows(json);
+    if(mapped.length) vehicles = mapped;
+  }catch(err){
+    console.warn('vehicles.xlsx 자동 로드 실패, 내장 기본데이터 사용:', err);
+    vehicles = structuredClone(defaultVehicles);
+  }
+  init();
+}
 const norm=s=>String(s??'').toLowerCase().replace(/\s/g,'');
+function mapExcelRows(json){
+  return json.map((r,i)=>({
+    no: r['No.'] || r['No'] || i+1,
+    card: String(r['하이패스/주유카드'] || ''),
+    expiry: String(r['유효기간'] || ''),
+    control: String(r['관제'] || ''),
+    department: String(r['부서명'] || ''),
+    name: String(r['성명'] || ''),
+    position: String(r['직급/직책'] || ''),
+    car: String(r['차종'] || ''),
+    number: String(r['차량번호'] || ''),
+    lease: String(r['리스'] || ''),
+    gps: String(r['관제기기 설치'] || r['관제설치'] || ''),
+    issue: String(r['특이건'] || ''),
+    memo: String(r['비고'] || '')
+  })).filter(v=>v.name || v.number);
+}
 function match(v,q){q=norm(q); if(!q)return true; if(q.includes('총차량')||q.includes('전체차량')||q==='전체'||q==='all') return true; if(q.includes('대표이사')) return v.department.includes('대표이사')||v.position.includes('대표이사'); if(q.includes('관제없는')||q.includes('관제미설치')||q.includes('미설치')) return v.gps!=='○'; if(q.includes('관제설치')||q.includes('관제')) return v.gps==='○'; if(q.includes('리스')) return v.lease==='○'; if(q.includes('자산')) return v.lease==='자산'; if(q.includes('특이')) return !!(v.issue||v.memo); return Object.values(v).some(x=>norm(x).includes(q));}
 function search(){const q=document.getElementById('q').value.trim(); const res=vehicles.filter(v=>match(v,q)); renderResults(res,q||'전체'); addRecent(q);}
-function quickSearch(q){document.getElementById('q').value=q; search(); scrollToSection('result');}
-function showAll(){document.getElementById('q').value=''; renderResults(vehicles,'전체'); scrollToSection('result');}
+function quickSearch(q){document.getElementById('q').value=q; search(); scrollToSection('resultPanel');}
+function showAll(){document.getElementById('q').value=''; renderResults(vehicles,'전체'); scrollToSection('resultPanel');}
 function renderResults(list,label){const el=document.getElementById('result'); if(!list.length){el.innerHTML='<p style="color:var(--muted)">검색 결과가 없습니다.</p>';return;} el.innerHTML=list.map(v=>card(v)).join(''); document.querySelector('.panel h3').textContent=`🔍 검색 결과 · ${label} (${list.length}건)`;}
-function card(v){const leaseClass=v.lease==='○'?'ok':v.lease==='자산'?'warn':'bad'; const leaseText=v.lease==='○'?'리스 운영':(v.lease==='자산'?'자산 차량':'리스 미등록'); const gpsClass=v.gps==='○'?'ok':'bad'; const gpsText=v.gps==='○'?'관제 설치':'관제 미설치'; const issue=v.issue||v.memo; return `<div class="result-card premium"><div class="premium-top"><div class="avatar">👤</div><div class="person-title"><h4>${v.name||'-'}</h4><p>${v.department||'-'} · ${v.position||'-'}</p><span class="vehicle-badge">🚗 ${v.car||'-'}</span></div><div class="plate-premium"><small>VEHICLE NO.</small><strong>${v.number||'-'}</strong></div></div><div class="premium-body"><div class="premium-item"><span class="k">부서명</span><span class="v">${v.department||'-'}</span></div><div class="premium-item"><span class="k">직급/직책</span><span class="v">${v.position||'-'}</span></div><div class="premium-item"><span class="k">차종</span><span class="v">${v.car||'-'}</span></div><div class="premium-item"><span class="k">하이패스/주유카드</span><span class="v">${v.card||'-'}</span></div>${issue?`<div class="premium-item full"><span class="k">특이사항 / 비고</span><span class="v">${issue}</span></div>`:''}</div><div class="premium-status"><span class="chip ${leaseClass}">📄 ${leaseText}</span><span class="chip ${gpsClass}">📡 ${gpsText}</span></div><div class="premium-actions"><button onclick="openDetail(${v.no})">상세보기</button><button onclick="window.print()">인쇄</button><button onclick="scrollToSection('list')">전체현황 보기</button></div></div>`;}
+function card(v){const leaseClass=v.lease==='○'?'ok':v.lease==='자산'?'warn':'bad'; const leaseText=v.lease==='○'?'리스 운영':(v.lease==='자산'?'자산 차량':'리스 미등록'); const gpsClass=v.gps==='○'?'ok':'bad'; const gpsText=v.gps==='○'?'관제 설치':'관제 미설치'; const issue=v.issue||v.memo; return `<div class="result-card premium"><div class="premium-top"><div class="avatar">👤</div><div class="person-title"><h4>${v.name||'-'}</h4><p>${v.department||'-'} · ${v.position||'-'}</p><span class="vehicle-badge">🚗 ${v.car||'-'}</span></div><div class="plate-premium"><small>VEHICLE NO.</small><strong>${v.number||'-'}</strong></div></div><div class="premium-body"><div class="premium-item"><span class="k">부서명</span><span class="v">${v.department||'-'}</span></div><div class="premium-item"><span class="k">직급/직책</span><span class="v">${v.position||'-'}</span></div><div class="premium-item"><span class="k">차종</span><span class="v">${v.car||'-'}</span></div><div class="premium-item"><span class="k">하이패스/주유카드</span><span class="v">${v.card||'-'}</span></div>${v.expiry?`<div class="premium-item"><span class="k">유효기간</span><span class="v">${v.expiry}</span></div>`:''}${v.control?`<div class="premium-item"><span class="k">관제</span><span class="v">${v.control}</span></div>`:''}${issue?`<div class="premium-item full"><span class="k">특이사항 / 비고</span><span class="v">${issue}</span></div>`:''}</div><div class="premium-status"><span class="chip ${leaseClass}">📄 ${leaseText}</span><span class="chip ${gpsClass}">📡 ${gpsText}</span></div><div class="premium-actions"><button onclick="openDetail(${v.no})">상세보기</button><button onclick="window.print()">인쇄</button><button onclick="scrollToSection('list')">전체현황 보기</button></div></div>`;}
 function openDetail(no){const v=vehicles.find(x=>x.no==no); document.getElementById('modalBody').innerHTML=card(v)+`<div class="panel" style="box-shadow:none;margin-top:18px"><h3>관리 메모</h3><p style="color:var(--muted);margin-top:10px">${v.memo||'등록된 비고가 없습니다.'}</p></div>`; document.getElementById('modal').style.display='flex';}
 function closeModal(){document.getElementById('modal').style.display='none';}
 function renderDashboard(){const total=vehicles.length, lease=vehicles.filter(v=>v.lease==='○').length, asset=vehicles.filter(v=>v.lease==='자산').length, gps=vehicles.filter(v=>v.gps==='○').length; document.getElementById('miniTotal').textContent=total+'대'; const stats=[['🚗','총 차량',total,100,'전체 차량 데이터','전체'],['📄','리스',lease,Math.round(lease/total*100),'리스 운영 차량','리스'],['🏢','자산',asset,Math.round(asset/total*100),'자산 등록 차량','자산'],['📡','관제설치',gps,Math.round(gps/total*100),'관제기기 설치 차량','관제설치']]; document.getElementById('dashboard').innerHTML=stats.map(s=>`<div class="stat" onclick="quickSearch('${s[5]}')" title="클릭하면 ${s[1]} 목록을 확인합니다"><div class="label">${s[0]} ${s[1]}</div><div class="num">${s[2]}</div><div style="color:var(--muted);font-weight:800;margin-bottom:10px">${s[4]}</div><div class="bar"><div class="fill" style="width:${s[3]}%"></div></div><div style="margin-top:12px;color:var(--orange);font-size:13px;font-weight:900">클릭하여 목록 보기 →</div></div>`).join(''); document.getElementById('summary').innerHTML=`총 ${total}대 중 리스 ${lease}대, 자산 ${asset}대입니다.<br>관제기기 설치 차량은 ${gps}대이며, 미설치 차량은 ${total-gps}대입니다.<br>특이사항 등록 차량은 ${vehicles.filter(v=>v.issue||v.memo).length}대입니다.`; renderChart();}
-function renderTable(){const q=norm(document.getElementById('tableFilter').value); let rows=vehicles.filter(v=>!q||Object.values(v).some(x=>norm(x).includes(q))); rows.sort((a,b)=>{let x=a[sortKey]??'',y=b[sortKey]??'';return (x>y?1:x<y?-1:0)*(sortAsc?1:-1)}); document.getElementById('tbody').innerHTML=rows.map(v=>`<tr onclick="openDetail(${v.no})"><td>${v.no}</td><td>${v.name}</td><td>${v.department}</td><td>${v.position}</td><td>${v.car}</td><td>${v.number}</td><td>${v.lease||'-'}</td><td>${v.gps||'-'}</td><td>${v.issue||'-'}</td><td>${v.memo||'-'}</td></tr>`).join('');}
+function renderTable(){const q=norm(document.getElementById('tableFilter').value); let rows=vehicles.filter(v=>!q||Object.values(v).some(x=>norm(x).includes(q))); rows.sort((a,b)=>{let x=a[sortKey]??'',y=b[sortKey]??'';return (x>y?1:x<y?-1:0)*(sortAsc?1:-1)}); document.getElementById('tbody').innerHTML=rows.map(v=>`<tr onclick="openDetail(${v.no})"><td>${v.no}</td><td>${v.name}</td><td>${v.department}</td><td>${v.position}</td><td>${v.car}</td><td>${v.number}</td><td>${v.lease||'-'}</td><td>${v.gps||'-'}</td><td>${v.expiry||'-'}</td><td>${v.issue||'-'}</td><td>${v.memo||'-'}</td></tr>`).join('');}
 function sortBy(k){sortAsc=sortKey===k?!sortAsc:true; sortKey=k; renderTable();}
 function renderChart(){const counts={}; vehicles.forEach(v=>counts[v.car]=(counts[v.car]||0)+1); const max=Math.max(...Object.values(counts)); document.getElementById('chart').innerHTML=Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([k,c])=>`<div class="chartbar"><strong>${k}</strong><div class="track"><span style="width:${c/max*100}%"></span></div><b>${c}</b></div>`).join('');}
 function scrollToSection(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth'});}
@@ -200,13 +840,13 @@ function toggleDark(){document.body.classList.toggle('dark');}
 function toggleChat(){const c=document.getElementById('chat'); c.style.display=c.style.display==='block'?'none':'block';}
 function askAI(){const input=document.getElementById('chatText'); const q=input.value.trim(); if(!q)return; const body=document.getElementById('chatBody'); body.innerHTML+=`<div class="msg user">${q}</div>`; const res=vehicles.filter(v=>match(v,q)); body.innerHTML+=`<div class="msg bot">${res.length}건을 찾았습니다. ${res.slice(0,5).map(v=>`${v.name}(${v.car}, ${v.number})`).join(', ')||'조건을 다시 입력해 주세요.'}</div>`; input.value=''; body.scrollTop=body.scrollHeight; document.getElementById('q').value=q; renderResults(res,q);}
 function addRecent(q){if(!q)return; let r=JSON.parse(localStorage.getItem('recent')||'[]').filter(x=>x!==q); r.unshift(q); localStorage.setItem('recent',JSON.stringify(r.slice(0,6)));}
-function downloadCSV(){const headers=['No.','하이패스/주유카드','부서명','성명','직급/직책','차종','차량번호','리스','관제기기 설치','특이건','비고']; const rows=vehicles.map(v=>[v.no,v.card,v.department,v.name,v.position,v.car,v.number,v.lease,v.gps,v.issue,v.memo]); const csv='\ufeff'+[headers,...rows].map(r=>r.map(x=>`"${String(x??'').replaceAll('"','""')}"`).join(',')).join('\n'); const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})); a.download='차량현황.csv'; a.click();}
+function downloadCSV(){const headers=['No.','하이패스/주유카드','유효기간','관제','부서명','성명','직급/직책','차종','차량번호','리스','관제기기 설치','특이건','비고']; const rows=vehicles.map(v=>[v.no,v.card,v.expiry||'',v.control||'',v.department,v.name,v.position,v.car,v.number,v.lease,v.gps,v.issue,v.memo]); const csv='\ufeff'+[headers,...rows].map(r=>r.map(x=>`"${String(x??'').replaceAll('"','""')}"`).join(',')).join('\n'); const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})); a.download='차량현황.csv'; a.click();}
 function downloadTemplate(){downloadCSV(); alert('현재 데이터가 CSV 양식으로 다운로드됩니다. Excel에서 수정 후 .xlsx로 저장하거나 CSV를 참고해 주세요.');}
-function resetData(){if(confirm('기본 데이터로 복구할까요?')){vehicles=structuredClone(defaultVehicles); localStorage.removeItem('etnersVehicles'); init();}}
-function uploadExcel(e){const file=e.target.files[0]; if(!file)return; if(typeof XLSX==='undefined'){alert('엑셀 업로드 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.');return;} const reader=new FileReader(); reader.onload=evt=>{const data=new Uint8Array(evt.target.result); const wb=XLSX.read(data,{type:'array'}); const ws=wb.Sheets[wb.SheetNames[0]]; const json=XLSX.utils.sheet_to_json(ws,{defval:''}); const mapped=json.map((r,i)=>({no:r['No.']||r['No']||i+1,card:String(r['하이패스/주유카드']||''),department:String(r['부서명']||''),name:String(r['성명']||''),position:String(r['직급/직책']||''),car:String(r['차종']||''),number:String(r['차량번호']||''),lease:String(r['리스']||''),gps:String(r['관제기기 설치']||r['관제설치']||''),issue:String(r['특이건']||''),memo:String(r['비고']||'')})).filter(v=>v.name||v.number); if(!mapped.length){alert('업로드할 데이터가 없습니다. 헤더명을 확인해 주세요.');return;} vehicles=mapped; localStorage.setItem('etnersVehicles',JSON.stringify(vehicles)); init(); alert(`${vehicles.length}대 데이터가 업로드되었습니다.`);}; reader.readAsArrayBuffer(file);}
+function resetData(){if(confirm('data/vehicles.xlsx 기준 데이터로 다시 불러올까요?')){loadExcelDatabase();}}
+function uploadExcel(e){const file=e.target.files[0]; if(!file)return; if(typeof XLSX==='undefined'){alert('엑셀 업로드 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.');return;} const reader=new FileReader(); reader.onload=evt=>{const data=new Uint8Array(evt.target.result); const wb=XLSX.read(data,{type:'array'}); const ws=wb.Sheets[wb.SheetNames[0]]; const json=XLSX.utils.sheet_to_json(ws,{defval:''}); const mapped=mapExcelRows(json); if(!mapped.length){alert('업로드할 데이터가 없습니다. 헤더명을 확인해 주세요.');return;} vehicles=mapped; uploadedSession=true; init(); alert(`${vehicles.length}대 데이터가 업로드되었습니다.\\n※ 이 업로드는 현재 브라우저에서 임시 반영됩니다.\\n영구 반영은 data/vehicles.xlsx를 교체 후 GitHub에 Push하세요.`);}; reader.readAsArrayBuffer(file);}
 function startVoice(){if(!('webkitSpeechRecognition'in window)){alert('이 브라우저는 음성검색을 지원하지 않습니다.');return;} const rec=new webkitSpeechRecognition(); rec.lang='ko-KR'; rec.onresult=e=>{document.getElementById('q').value=e.results[0][0].transcript; search();}; rec.start();}
 function init(){renderDashboard();renderTable();renderResults([], '');document.querySelector('.panel h3').textContent='🔍 검색 결과';}
-init();
+loadExcelDatabase();
 </script>
 
 <div class="mobile-bottom-nav">
