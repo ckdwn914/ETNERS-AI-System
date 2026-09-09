@@ -137,9 +137,18 @@ body.auth-locked{overflow:hidden}
   background:linear-gradient(90deg,#07182c 0%,#07182c 46%,#051427 46%,#031120 100%);
 }
 .final-login-visual{
-  position:relative; min-width:0; overflow:hidden;
-  background-image: url('images/login-background-system.png');
-  background-size:cover; background-position:center top; background-repeat: no-repeat;
+  position:relative;
+  min-width:0;
+  overflow:hidden;
+
+  background-color:#061426;
+  background-image:url('images/login-background-system.png');
+
+  /* 핵심: 이미지 전체가 왼쪽 영역 안에 들어오도록 */
+  background-size:100% 100%;
+  background-position:center center;
+  background-repeat:no-repeat;
+
   border-right:1px solid rgba(105,164,221,.16);
 }
 .final-login-visual::after{
@@ -254,10 +263,15 @@ body.auth-locked{overflow:hidden}
     background:#041326;
   }
   .final-login-visual{
-    height:280px; border-right:0;
-    background-position:center 38%;
-    border-bottom:1px solid rgba(105,164,221,.14);
-  }
+  height:280px;
+  border-right:0;
+
+  background-size:100% 100%;
+  background-position:center center;
+  background-repeat:no-repeat;
+
+  border-bottom:1px solid rgba(105,164,221,.14);
+}
   .final-login-form-panel{
     min-height:calc(100vh - 280px);
     padding:42px 20px 100px; align-items:flex-start;
