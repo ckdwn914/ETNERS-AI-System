@@ -1,2 +1,2 @@
 # ETNERS-AI-System
-AI Fleet Intelligence Platform
+AI Fleet Intelligence System
