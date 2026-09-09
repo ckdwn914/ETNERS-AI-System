@@ -269,13 +269,25 @@ body.auth-locked{overflow:hidden}
     background:#041326;
   }
   .final-login-visual{
-    height:280px; border-right:0;
-    background-position:center 38%;
-    border-bottom:1px solid rgba(105,164,221,.14);
+  width:100%;
+  height:auto;
+  aspect-ratio:1.1 / 1;
+
+  border-right:0;
+
+  background-image:url('./images/login-background-system.png');
+  background-size:100% 100%;
+  background-position:center center;
+  background-repeat:no-repeat;
+
+  border-bottom:1px solid rgba(105,164,221,.14);
+}
   }
   .final-login-form-panel{
-    min-height:calc(100vh - 280px);
-    padding:42px 20px 100px; align-items:flex-start;
+    min-height:auto;
+  padding:42px 20px 100px;
+  align-items:flex-start;
+}
   }
   .final-login-form{width:100%; transform:none}
   .final-login-welcome{
