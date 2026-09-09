@@ -132,14 +132,29 @@ body.auth-locked{overflow:hidden}
 }
 #loginGate.hidden{display:none}
 .final-login-shell{
-  width:100%; height:100vh; min-height:680px;
-  display:grid; grid-template-columns:46% 54%;
-  background:linear-gradient(90deg,#07182c 0%,#07182c 46%,#051427 46%,#031120 100%);
+  width:100%;
+  height:100vh;
+  min-height:680px;
+
+  display:grid;
+  grid-template-columns:46% 54%;
+
+  background:#061426;
 }
 .final-login-visual{
-  position:relative; min-width:0; overflow:hidden;
- background-image:url('./images/login-background-system.png');
-  background-size:100% auto; background-position:center center;
+  position:relative;
+  min-width:0;
+  height:100vh;
+  overflow:hidden;
+
+  background-color:#061426;
+  background-image:url('./images/login-background-system.png');
+
+  /* 핵심: 이미지 전체가 영역 안에 보이게 */
+  background-size:contain;
+  background-position:center center;
+  background-repeat:no-repeat;
+
   border-right:1px solid rgba(105,164,221,.16);
 }
 .final-login-visual::after{
