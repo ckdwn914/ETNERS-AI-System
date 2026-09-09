@@ -248,224 +248,40 @@ body.auth-locked{overflow:hidden}
   .final-login-welcome{font-size:16px}
 }
 @media(max-width:760px){
-  /* ===== 모바일 로그인 화면 비율 최적화 ===== */
-@media(max-width:760px){
-
-  #loginGate{
-    overflow-y:auto;
-    overflow-x:hidden;
-    background:#041326;
-  }
-
+  #loginGate{overflow:auto}
   .final-login-shell{
-    width:100%;
-    min-height:100vh;
-    height:auto;
-    display:block;
+    min-height:100vh; height:auto; display:block;
     background:#041326;
   }
-
-  /* 상단 이미지 영역 */
   .final-login-visual{
-    width:100%;
-    height:auto;
-    aspect-ratio: 1.38 / 1;
-    overflow:hidden;
-    background:#061426;
-    border-right:0;
+    height:280px; border-right:0;
+    background-position:center 38%;
     border-bottom:1px solid rgba(105,164,221,.14);
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
   }
-
-  /* 실제 이미지 */
-  .final-login-image{
-    width:100%;
-    height:100%;
-    display:block;
-
-    object-fit:cover;
-    object-position:center center;
-  }
-
-  /* 로그인 영역 */
   .final-login-form-panel{
-    position:relative;
-    min-height:560px;
-
-    display:flex;
-    align-items:flex-start;
-    justify-content:center;
-
-    padding:34px 22px 85px;
-
-    background:
-      radial-gradient(
-        circle at 82% 28%,
-        rgba(25,72,120,.12),
-        transparent 28%
-      ),
-      linear-gradient(
-        145deg,
-        #07172a 0%,
-        #041225 58%,
-        #020d1b 100%
-      );
+    min-height:calc(100vh - 280px);
+    padding:42px 20px 100px; align-items:flex-start;
   }
-
-  .final-login-form{
-    width:100%;
-    max-width:520px;
-    transform:none;
-  }
-
-  /* 환영 문구 */
+  .final-login-form{width:100%; transform:none}
   .final-login-welcome{
-    margin:0 4px 26px;
-    color:#c8ced8;
-
-    font-size:15px;
-    line-height:1.55;
-    font-weight:400;
-
-    word-break:keep-all;
+    margin:0 0 28px 4px; font-size:15px; line-height:1.55;
   }
-
-  /* 아이디 / 비밀번호 입력창 */
   .final-login-field{
-    height:68px;
-    margin-bottom:16px;
-
-    border-radius:10px;
+    height:68px; margin-bottom:16px; border-radius:10px;
   }
-
-  .final-login-icon{
-    width:62px;
-    flex:0 0 62px;
-  }
-
-  .final-login-icon svg{
-    width:28px;
-    height:28px;
-  }
-
-  .final-login-field input{
-    font-size:16px;
-    padding-right:10px;
-  }
-
-  .final-password-toggle{
-    width:58px;
-    flex:0 0 58px;
-  }
-
-  .final-password-toggle svg{
-    width:26px;
-    height:26px;
-  }
-
-  /* 아이디 저장 */
-  .final-login-options{
-    margin:8px 0 25px;
-  }
-
-  .remember-wrap{
-    gap:10px;
-    font-size:15px;
-  }
-
-  .remember-box{
-    width:23px;
-    height:23px;
-  }
-
+  .final-login-icon{width:64px; flex-basis:64px}
+  .final-login-icon svg{width:28px;height:28px}
+  .final-login-field input{font-size:16px}
+  .final-password-toggle{width:58px;flex-basis:58px}
+  .final-password-toggle svg{width:26px;height:26px}
+  .final-login-options{margin:8px 0 26px}
+  .remember-wrap{font-size:15px;gap:10px}
+  .remember-box{width:23px;height:23px}
   .remember-wrap input:checked + .remember-box::after{
-    left:6px;
-    top:3px;
-    width:7px;
-    height:11px;
+    left:6px;top:3px;width:7px;height:11px;
   }
-
-  /* 로그인 버튼 */
-  .final-login-btn{
-    width:100%;
-    height:64px;
-
-    border-radius:10px;
-
-    font-size:21px;
-    font-weight:800;
-  }
-
-  .login-error{
-    min-height:20px;
-    margin-top:10px;
-    font-size:13px;
-  }
-
-  /* Copyright */
-  .final-login-footer{
-    position:absolute;
-
-    left:0;
-    right:0;
-    bottom:24px;
-
-    text-align:center;
-
-    font-size:11px;
-    color:#aeb7c4;
-  }
-}
-
-
-/* 작은 휴대폰 */
-@media(max-width:430px){
-
-  .final-login-visual{
-    aspect-ratio:1.32 / 1;
-  }
-
-  .final-login-form-panel{
-    min-height:535px;
-    padding:28px 20px 75px;
-  }
-
-  .final-login-welcome{
-    font-size:14px;
-    margin-bottom:22px;
-  }
-
-  .final-login-field{
-    height:62px;
-    margin-bottom:14px;
-  }
-
-  .final-login-icon{
-    width:58px;
-    flex-basis:58px;
-  }
-
-  .final-login-icon svg{
-    width:26px;
-    height:26px;
-  }
-
-  .final-login-field input{
-    font-size:15px;
-  }
-
-  .final-login-options{
-    margin:7px 0 22px;
-  }
-
-  .final-login-btn{
-    height:60px;
-    font-size:20px;
-  }
-}
+  .final-login-btn{height:64px;font-size:21px}
+  .final-login-footer{bottom:24px;font-size:12px}
 }
 @media(max-width:430px){
   .final-login-visual{height:220px}
